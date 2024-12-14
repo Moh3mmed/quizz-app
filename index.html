@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz App</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        #wheel { width: 300px; height: 300px; border: 5px solid #000; border-radius: 50%; margin: 20px auto; position: relative; overflow: hidden; }
+        .segment { position: absolute; width: 50%; height: 50%; transform-origin: 100% 100%; }
+        button { padding: 10px 20px; margin: 10px; font-size: 16px; cursor: pointer; }
+        #question { font-size: 20px; margin: 20px; }
+        #leaderboard { margin: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Spin Quiz Game</h1>
+    <div id="wheel"></div>
+    <button onclick="spinWheel()">Spin Wheel</button>
+    <div id="question"></div>
+    <form id="answerForm" onsubmit="submitAnswer(event)">
+        <input type="text" id="answer" placeholder="Your answer" required />
+        <button type="submit">Submit Answer</button>
+    </form>
+    <div id="leaderboard">
+        <h2>Leaderboard</h2>
+        <ul id="scores"></ul>
+    </div>
+
+    <script>
+        // ======== Data ========
+        const questions = [
+            { id: 1, question: "What is 2 + 2?", answer: "4" },
+            { id: 2, question: "What is the capital of France?", answer: "Paris" },
+            { id: 3, question: "Name a primary color.", answer: "red" },
+            { id: 4, question: "What planet is known as the Red Planet?", answer: "Mars" },
+        ];
+        const studentScores = {};
+
+        // ======== Spin Wheel Setup ========
+        const wheel = document.getElementById("wheel");
+        const segments = questions.length;
+        for (let i = 0; i < segments; i++) {
+            const segment = document.createElement("div");
+            segment.classList.add("segment");
+            segment.style.transform = `rotate(${(360 / segments) * i}deg)`;
+            segment.style.background = i % 2 === 0 ? "lightblue" : "lightgreen";
+            wheel.appendChild(segment);
+        }
+
+        let currentQuestion;
+        function spinWheel() {
+            const randomIndex = Math.floor(Math.random() * questions.length);
+            currentQuestion = questions[randomIndex];
+            document.getElementById("question").innerText = `Question: ${currentQuestion.question}`;
+        }
+
+        // ======== Answer Submission ========
+        function submitAnswer(event) {
+            event.preventDefault();
+            const studentName = prompt("Enter your name:");
+            if (!studentName) return alert("Name is required to submit your answer!");
+
+            const answer = document.getElementById("answer").value;
+            if (answer.toLowerCase() === currentQuestion.answer.toLowerCase()) {
+                alert("Correct Answer!");
+                studentScores[studentName] = (studentScores[studentName] || 0) + 1;
+            } else {
+                alert("Wrong Answer!");
+            }
+
+            document.getElementById("answerForm").reset();
+            updateLeaderboard();
+        }
+
+        // ======== Leaderboard Update ========
+        function updateLeaderboard() {
+            const scoresList = document.getElementById("scores");
+            scoresList.innerHTML = "";
+            const sortedScores = Object.entries(studentScores).sort((a, b) => b[1] - a[1]);
+
+            sortedScores.forEach(([name, score]) => {
+                const listItem = document.createElement("li");
+                listItem.textContent = `${name}: ${score}`;
+                scoresList.appendChild(listItem);
+            });
+        }
+    </script>
+</body>
+</html>
